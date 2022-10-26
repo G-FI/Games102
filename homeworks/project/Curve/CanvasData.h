@@ -1,13 +1,13 @@
-#pragma once
+ï»¿#pragma once
 
 #include"imgui.h"
 #include <vector>
 using namespace std;
 
 struct CanvasData {
-	//Ãæ°å¿ØÖÆ
+	//ç›‘æ§é¢æ¿å¼€å…³
 	bool monitor_open = { false };
-	//¿ØÖÆµã
+	//æ§åˆ¶ç‚¹
 	vector<ImVec2> points;
 
 	//bezier
@@ -19,10 +19,10 @@ struct CanvasData {
 	vector<ImVec2> b_curve;
 	bool b_draw = { false };
 
-	//Ã¿¶Î²ÉÑùµãÊıÁ¿
+	//æ¯æ®µé‡‡æ ·æ•°é‡
 	int num = 1000;
 
-	//ĞŞ¸Ä
+	//ç¼–è¾‘æ§åˆ¶ç‚¹
 	bool editing = { false };
 	bool is_draging = { false };
 	int edit_idx = { -1 };

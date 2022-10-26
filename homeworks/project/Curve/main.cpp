@@ -203,23 +203,25 @@ int main() {
                     data.points.push_back(mouse_in_canvas);
                 }
                 //交互修改控制点
-                if (data.editing && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                    for(int i =0 ;i < data.points.size(); ++i){
-                        ImVec2 min = data.points[i] + origin + ImVec2(-5.f, -5.f);
-                        ImVec2 max = min + ImVec2(10.f, 10.f);
-                        if (ImGui::IsMouseHoveringRect(min, max)) {
-                            data.is_draging = true;
-                            data.edit_idx = i;
-                            break;
+                {
+                    if (data.editing && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                        for (int i = 0; i < data.points.size(); ++i) {
+                            ImVec2 min = data.points[i] + origin + ImVec2(-5.f, -5.f);
+                            ImVec2 max = min + ImVec2(10.f, 10.f);
+                            if (ImGui::IsMouseHoveringRect(min, max)) {
+                                data.is_draging = true;
+                                data.edit_idx = i;
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (data.is_draging) {
-                    data.points[data.edit_idx] = io.MousePos - origin;
-                }
-                if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-                    data.is_draging = false;
+                    if (data.is_draging) {
+                        data.points[data.edit_idx] = io.MousePos - origin;
+                    }
+                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+                        data.is_draging = false;
+                    }
                 }
 
                 //生成Bezeir曲线
