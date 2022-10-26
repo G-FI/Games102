@@ -11,7 +11,7 @@
    2. B1: 输入层到hidden layer的bias, shape = 1 * rbf_number
    3. W2: hidden layer 到 输出y_pred的weight shape = 1 * rbf_number
    4. B2： 输出层的bias， shape = 1* 1
-3. forward:
+3.  forward:
    1. 公式：
       1. $Z = W^1 * x + B^1$
       2. $A = g_{0,1}(Z)$
