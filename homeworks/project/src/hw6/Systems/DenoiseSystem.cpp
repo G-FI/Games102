@@ -1,10 +1,11 @@
-#include "DenoiseSystem.h"
+﻿#include "DenoiseSystem.h"
 
 #include "../Components/DenoiseData.h"
 
 #include <_deps/imgui/imgui.h>
 
 #include <spdlog/spdlog.h>
+#include<sstream>
 
 using namespace Ubpa;
 
@@ -132,6 +133,74 @@ void DenoiseSystem::OnUpdate(Ubpa::UECS::Schedule& schedule) {
 
 					spdlog::info("recover success");
 				}();
+			}
+
+			if (ImGui::Button("Denoise")) {
+				/*
+				* 找到边界上的顶点，保存不更新
+					for i from 1 to k //迭代次数
+						先保存顶点 saved_vertex
+						创建更新顶点数组 new_vertex
+						for v in every non-boundary v
+							计算法线(寻找邻接顶点)
+							延法线反向更新
+							保存到新顶点数组中
+
+						new_vertex 更新data->heMesh中的顶点
+				*/
+				/*顶点在data->heMesh->Vertices()的position属性中*/
+
+				/*auto v = data->heMesh->Vertices()[0];
+				std::stringstream ss;
+				ss << "邻接多边形个数: " << v->AdjPolygons().size() << std::endl;
+				ss << "邻接顶点个数: " << v->AdjVertices().size() << std::endl;;
+				ss << "邻接边个数: " << v->AdjEdges().size() << std::endl;
+				spdlog::info(ss.str());*/
+				//
+				for (auto* p : data->heMesh->Vertices()) {
+					if (p->IsOnBoundary()) {
+						auto he = p->HalfEdge();
+						p->is_boundary = true;
+					}
+				}
+
+				//for (int i = 0; i < data->k; ++i) {
+				//	auto vertices = data->heMesh->Vertices();	//vertices的元素指向的是底层hemesh的顶点
+				//	std::vector<Ubpa::pointf3> new_positions(vertices.size());
+
+				//	for (int j = 0; j < vertices.size(); ++j) {
+				//		if (vertices[j]->is_boundary) {
+				//			new_positions[j] = vertices[j]->position;
+				//			continue;
+				//		}
+
+				//		//只是在一个三角形中的邻接点
+				//		auto start_he = vertices[j]->HalfEdge();
+				//		auto he = start_he;
+				//		
+				//		Ubpa::vecf3 dir;
+				//		float area = 0.f;
+
+				//		do {
+				//			auto he1 = he->Pair()->Next();
+				//			auto he2 = he->RotateNext();
+				//			auto v = he->End();
+				//			area = v.area();
+
+				//			auto v1 = he1->End();
+				//			auto v2 = he2->End();
+
+				//			dir += (v1->cot() + v2->cot()) * (vertices[j]->position - v->position);
+				//			he = he2;
+				//		} while (he != start_he);
+				//	
+				//		new_positions[j] = (vertices[j] + data->lambda * dir)/4*area;
+				//	}
+
+				//	for (int j = 0; j < vertices.size(); ++j) {
+				//		vertices[j]->position = new_positions[j];
+				//	}
+				//}
 			}
 		}
 		ImGui::End();

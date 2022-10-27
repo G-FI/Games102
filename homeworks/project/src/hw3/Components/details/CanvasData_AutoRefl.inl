@@ -26,6 +26,20 @@ struct Ubpa::USRefl::TypeInfo<CanvasData> :
         Field {TSTR("adding_line"), &Type::adding_line, AttrList {
             Attr {TSTR(UMeta::initializer), []()->bool{ return { false }; }},
         }},
+        Field {TSTR("sample_points"), &Type::sample_points},
+        Field {TSTR("stride"), &Type::stride, AttrList {
+            Attr {TSTR(UMeta::initializer), []()->float{ return { 1.2f/1000 }; }},
+        }},
+        Field {TSTR("sample_num"), &Type::sample_num, AttrList {
+            Attr {TSTR(UMeta::initializer), []()->int{ return { 1000 }; }},
+        }},
+        Field {TSTR("uniform_param"), &Type::uniform_param, AttrList {
+            Attr {TSTR(UMeta::initializer), []()->bool{ return { false }; }},
+        }},
+        Field {TSTR("chordal_param"), &Type::chordal_param, AttrList {
+            Attr {TSTR(UMeta::initializer), []()->bool{ return { false }; }},
+        }},
+        Field {TSTR("sample_points2"), &Type::sample_points2},
     };
 };
 

@@ -26,6 +26,13 @@ struct Ubpa::USRefl::TypeInfo<DenoiseData> :
         Field {TSTR("copy"), &Type::copy, AttrList {
             Attr {TSTR(UInspector::hide)},
         }},
+        Field {TSTR("k"), &Type::k, AttrList {
+            Attr {TSTR(UInspector::tooltip), "number of iterations"},
+        }},
+        Field {TSTR("lambda"), &Type::lambda, AttrList {
+            Attr {TSTR(UMeta::initializer), []()->float{ return { 0.1f }; }},
+            Attr {TSTR(UInspector::tooltip), "step"},
+        }},
     };
 };
 

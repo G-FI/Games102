@@ -24,6 +24,12 @@ struct DenoiseData {
 
 	[[UInspector::hide]]
 	Ubpa::Utopia::Mesh copy;
+
+	[[UInspector::tooltip("number of iterations")]]
+	float k;
+	
+	[[UInspector::tooltip("step")]]
+	float lambda{ 0.1f };
 };
 
 #include "details/DenoiseData_AutoRefl.inl"

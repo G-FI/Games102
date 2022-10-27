@@ -1,5 +1,6 @@
 #pragma once
 
+#include<vector>
 #include <UGM/UGM.h>
 #include "imgui/imgui.h"
 struct CanvasData {
