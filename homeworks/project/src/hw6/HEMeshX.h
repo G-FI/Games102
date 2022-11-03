@@ -6,9 +6,9 @@
 struct Vertex;
 struct Edge;
 struct Triangle;
-struct HalfEdge;
+struct HalfEdgeS;
 
-using HEMeshXTraits = Ubpa::HEMeshTraits<Vertex, Edge, Triangle, HalfEdge>;
+using HEMeshXTraits = Ubpa::HEMeshTraits<Vertex, Edge, Triangle, HalfEdgeS>;
 
 struct Vertex : Ubpa::TVertex<HEMeshXTraits> {
 	// you can add any attributes and mothods to Vertex
@@ -17,20 +17,7 @@ struct Vertex : Ubpa::TVertex<HEMeshXTraits> {
 	//added
 	bool is_boundary{ false };
 
-	float area() {
-		
-	}
-	
-	float cot() {
-		auto* he = HalfEdge();
-		auto* pre = he->End();
-		he = he->RotateNext();
-		auto* next = he->End();
-		/*Ubpa::vecf3 v1(pre->position - position);
-		Ubpa::vecf3 v2(next->position - position);
-		return Ubpa::vecf3::cot_theta(v1, v2);*/
-		return 0;
-	}
+
 
 };
 
@@ -39,11 +26,11 @@ struct Edge : Ubpa::TEdge<HEMeshXTraits> {
 
 	// [example]
 
-	// Ubpa::pointf3 Midpoint() const {
-	//     auto* p = HalfEdge()->Origin();
-    //     auto* q = HalfEdge()->End();
-	//     return Ubpa::pointf3::combine(std::array{ p,q }, 0.5f);
-	// }
+	 //Ubpa::pointf3 Midpoint() const {
+	 //    auto* p = HalfEdge()->Origin();
+  //       auto* q = HalfEdge()->End();
+	 //    return Ubpa::pointf3::combine(std::array{ p,q }, 0.5f);
+	 //}
 };
 
 struct Triangle : Ubpa::TPolygon<HEMeshXTraits> {
@@ -75,18 +62,18 @@ struct Triangle : Ubpa::TPolygon<HEMeshXTraits> {
 	//     return Degree() == 3;
 	// }
 	// 
-	/* void UpdateArea() {
-	     assert(IsTriangle());
-	     auto* p0 = HalfEdge()->Origin();
-	     auto* p1 = HalfEdge()->HalfEdge()->Origin();
-	     auto* p2 = HalfEdge()->HalfEdge()->HalfEdge()->Origin();
-	     auto d01 = p1 - p0;
-	     auto d02 = p2 - p0;
-	     area = 0.5f * d02.cross(d01);
-	 }*/
+	 //void UpdateArea() {
+	 //    assert(IsTriangle());
+	 //    auto* p0 = HalfEdge()->Origin();
+	 //    auto* p1 = HalfEdge()->HalfEdge()->Origin();
+	 //    auto* p2 = HalfEdge()->HalfEdge()->HalfEdge()->Origin();
+	 //    auto d01 = p1 - p0;
+	 //    auto d02 = p2 - p0;
+	 //    area = 0.5f * d02.cross(d01);
+	 //}
 };
 
-struct HalfEdge : Ubpa::THalfEdge<HEMeshXTraits> {
+struct HalfEdgeS : Ubpa::THalfEdge<HEMeshXTraits> {
 	// you can add any attributes and mothods to HalfEdge
 
 };

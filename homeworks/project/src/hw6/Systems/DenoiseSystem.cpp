@@ -8,6 +8,30 @@
 #include<sstream>
 
 using namespace Ubpa;
+//
+//pointf3 Cross(const pointf3& a, const pointf3& b) {
+//	pointf3 res;
+//	res[0] = a[1] * b[2] - a[2] * b[1];
+//	res[1] = a[2] * b[0] - a[0] * b[2];
+//	res[2] = a[0] * b[1] - a[1] * b[0];
+//	return res;
+//}
+//
+//float Norm(const pointf3& a) {
+//	return sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+//}
+
+pointf3 operator /(const pointf3& a, float b) {
+	return pointf3(a[0] / b, a[1] / b, a[2] / b);
+}
+
+pointf3 operator *(float a, const pointf3& p) {
+	return pointf3(a * p[0], a * p[1], a * p[2]);
+}
+
+pointf3 operator +(const pointf3& p1, const pointf3& p2) {
+	return pointf3( p1[0] + p2[0],  p1[1] * p2[1], p1[2] * p2[2]);
+}
 
 void DenoiseSystem::OnUpdate(Ubpa::UECS::Schedule& schedule) {
 	schedule.RegisterCommand([](Ubpa::UECS::World* w) {
@@ -149,14 +173,15 @@ void DenoiseSystem::OnUpdate(Ubpa::UECS::Schedule& schedule) {
 						new_vertex 更新data->heMesh中的顶点
 				*/
 				/*顶点在data->heMesh->Vertices()的position属性中*/
+				
+				
+				//v1为尖点
+				auto Cot = [](const pointf3& v1, const pointf3& v2, const pointf3& v3)->float {
+					vecf3 a = v2 - v1;
+					vecf3 b = v3 - v1;
+					return vecf3::cot_theta(a, b);
+				};
 
-				/*auto v = data->heMesh->Vertices()[0];
-				std::stringstream ss;
-				ss << "邻接多边形个数: " << v->AdjPolygons().size() << std::endl;
-				ss << "邻接顶点个数: " << v->AdjVertices().size() << std::endl;;
-				ss << "邻接边个数: " << v->AdjEdges().size() << std::endl;
-				spdlog::info(ss.str());*/
-				//
 				for (auto* p : data->heMesh->Vertices()) {
 					if (p->IsOnBoundary()) {
 						auto he = p->HalfEdge();
@@ -164,43 +189,93 @@ void DenoiseSystem::OnUpdate(Ubpa::UECS::Schedule& schedule) {
 					}
 				}
 
-				//for (int i = 0; i < data->k; ++i) {
-				//	auto vertices = data->heMesh->Vertices();	//vertices的元素指向的是底层hemesh的顶点
-				//	std::vector<Ubpa::pointf3> new_positions(vertices.size());
+				auto vertices = data->heMesh->Vertices();	//vertices的元素指向的是底层hemesh的顶点
+				std::vector<Ubpa::pointf3> new_positions(vertices.size());
 
-				//	for (int j = 0; j < vertices.size(); ++j) {
-				//		if (vertices[j]->is_boundary) {
-				//			new_positions[j] = vertices[j]->position;
-				//			continue;
-				//		}
+				for (int j = 0; j < vertices.size(); ++j) {
+					if (vertices[j]->is_boundary) {
+						new_positions[j] = vertices[j]->position;
+						continue;
+					}
 
-				//		//只是在一个三角形中的邻接点
-				//		auto start_he = vertices[j]->HalfEdge();
-				//		auto he = start_he;
-				//		
-				//		Ubpa::vecf3 dir;
-				//		float area = 0.f;
+					//启示半边
+					auto* start_he = vertices[j]->HalfEdge();
+					auto* he = start_he;
 
-				//		do {
-				//			auto he1 = he->Pair()->Next();
-				//			auto he2 = he->RotateNext();
-				//			auto v = he->End();
-				//			area = v.area();
+					Ubpa::vecf3 Hn(0.f, 0.f, 0.f);
+					float area = 0.f;
 
-				//			auto v1 = he1->End();
-				//			auto v2 = he2->End();
+			
+					do {
+						auto* he1 = he->RotateNext();
+						auto* he2 = he->RotatePre();
 
-				//			dir += (v1->cot() + v2->cot()) * (vertices[j]->position - v->position);
-				//			he = he2;
-				//		} while (he != start_he);
-				//	
-				//		new_positions[j] = (vertices[j] + data->lambda * dir)/4*area;
-				//	}
+						assert(he1->Origin() == he->Origin());
+						assert(he2->Origin() == he->Origin());
 
-				//	for (int j = 0; j < vertices.size(); ++j) {
-				//		vertices[j]->position = new_positions[j];
-				//	}
-				//}
+						auto* vi = he->Origin();
+						auto* vj = he->End();
+						auto* v_alpha = he1->End();
+						auto* v_beta = he2->End();
+
+
+
+						auto cot_alpha = Cot(v_alpha->position, vi->position, vj->position);
+						auto cot_beta = Cot(v_beta->position, vi->position, vj->position);
+						vecf3 tmp = vi->position- vj->position;
+						area += (float)1 / 8 * (cot_alpha + cot_beta) * tmp.norm2();
+
+						Hn += (cot_alpha + cot_beta) * tmp;
+						he = he1;
+					} while (he != start_he);
+					new_positions[j] = vertices[j]->position + (data->lambda / (4 * area)) * Hn;
+
+
+				}
+
+				for (int j = 0; j < vertices.size(); ++j) {
+					vertices[j]->position = new_positions[j];
+				}
+
+
+				[&]() {
+					if (!data->mesh) {
+						spdlog::warn("mesh is nullptr");
+						return;
+					}
+
+					if (!data->heMesh->IsTriMesh() || data->heMesh->IsEmpty()) {
+						spdlog::warn("HEMesh isn't triangle mesh or is empty");
+						return;
+					}
+
+					data->mesh->SetToEditable();
+
+					const size_t N = data->heMesh->Vertices().size();
+					const size_t M = data->heMesh->Polygons().size();
+					std::vector<Ubpa::pointf3> positions(N);
+					std::vector<uint32_t> indices(M * 3);
+					for (size_t i = 0; i < N; i++)
+						positions[i] = data->heMesh->Vertices().at(i)->position;
+					for (size_t i = 0; i < M; i++) {
+						auto tri = data->heMesh->Indices(data->heMesh->Polygons().at(i));
+						indices[3 * i + 0] = static_cast<uint32_t>(tri[0]);
+						indices[3 * i + 1] = static_cast<uint32_t>(tri[1]);
+						indices[3 * i + 2] = static_cast<uint32_t>(tri[2]);
+					}
+					data->mesh->SetColors({});
+					data->mesh->SetUV({});
+					data->mesh->SetPositions(std::move(positions));
+					data->mesh->SetIndices(std::move(indices));
+					data->mesh->SetSubMeshCount(1);
+					data->mesh->SetSubMesh(0, { 0, M * 3 });
+					data->mesh->GenUV();
+					data->mesh->GenNormals();
+					data->mesh->GenTangents();
+
+					spdlog::info("HEMesh to Mesh success");
+				}();
+				
 			}
 		}
 		ImGui::End();

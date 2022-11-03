@@ -11,6 +11,7 @@
 void uniform_parameterization(CanvasData* data);
 void chordal_parameterization(CanvasData* data);
 
+
 using namespace Ubpa;
 
 void CanvasSystem::OnUpdate(Ubpa::UECS::Schedule& schedule) {
