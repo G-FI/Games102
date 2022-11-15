@@ -2,6 +2,7 @@ resources/
 build/
 lib/
 .vs/
+out/
 _deps/
 bin/logs/
 assets/
