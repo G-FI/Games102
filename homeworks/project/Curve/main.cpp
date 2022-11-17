@@ -1,6 +1,6 @@
 ﻿#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include<glad/glad.h>
 #include <GLFW/glfw3.h> 
@@ -233,8 +233,10 @@ int main() {
                 }
                 //context popup
                 {
-                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Right))
-                        ImGui::OpenPopupContextItem("context");
+                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+                        ImGui::BeginPopupContextItem("context");
+                        ImGui::EndPopup();
+                    }                  
                     if (ImGui::BeginPopup("context")) {
                         ImGui::Selectable("monitor", &data.monitor_open);
                         ImGui::Selectable("edit", &data.editing);
